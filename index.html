@@ -1,0 +1,125 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<!-- 
+	VirtualSky instructions	http://slowe.github.io/VirtualSky/ 
+-->
+
+<script src="jquery-3.4.1.min.js"></script>
+<script src="VirtualSky/0.7.0/stuquery.js"></script>
+<script src="VirtualSky/0.7.0/virtualsky.js"></script>
+<script src="astro.js/astro.js"></script>
+<script src="astro.js/astro.math.js"></script>
+<script src="astro.js/astro.constants.js"></script>
+<script src="astro.js/astro.coords.js"></script>
+<script src="astro.js/astro.coordinates.js"></script>
+<script src="astro.js/astro.dates.js"></script>
+<script src="satellite.js"></script>
+<script src="suncalc.js"></script>
+<script src="utils.js"></script>
+<script src="sat.js"></script>
+
+
+<script>
+var planetarium;
+var satellites;
+var display_sats;
+var aos_wav;
+var los_wav;
+
+function set_planetarium(sdate)
+{
+	planetarium = S.virtualsky({
+		id: 'starmap',	// This should match the ID used in the DOM
+		credit: false,
+		projection: "stereo",
+		az: 60,
+		fov: 50,
+		clock: sdate,		
+		keyboard: true,
+		gradient: false,
+		negative: false,
+		showplanetlabels: true,
+		showdate: true,
+		showstarlabels: true,
+		gridlines_az: true,
+		gridstep: 20,
+		latitude: 56.2087,
+		longitude: -3.0044,
+		showposition: false,
+		ecliptic: true,
+		constellations: true,
+		constellationlabels: true,
+		constellationboundaries: false,
+	});
+}
+
+S(document).ready(function() {
+	aos_wav = new Audio('sounds/aos.wav');
+	los_wav = new Audio('sounds/los.wav');
+	display_sats = new Array;
+	satellites = load_sats();
+	var sdate_str = $("#sdate").val();
+	var sdate = sdate_str.length > 0 ? new Date(sdate_str) : new Date();
+	$("#sdate").val(sdate.toISOString());
+	set_planetarium(sdate);	
+	
+	$("#playaos").click(function() {
+		aos_wav.play();
+	});
+	
+	$("#playlos").click(function() {
+		los_wav.play();
+	});
+	
+	$("#showcoords").click(function(){ 
+		$("#coords").toggle();
+	});
+	
+	$("#setscannowtime").click(function() {
+		var now = new Date();
+		$("#sdate").val(now.toISOString());
+		set_planetarium(now);	
+	});
+	
+	$("#scannow").click(function(){
+		scannow();
+		console.log(sdate);
+	});
+});
+</script>
+
+</head>
+<body>
+<table width="100%">
+<tr id="#virtualsky_tr">
+	<td colspan="3">
+		<div id="starmap" style="width:100%;height:500px;"></div>
+		</td>
+	</tr>
+<tr id="#commandbar_tr">
+	<td colspan="3">
+		<input type="text" id="sdate" value="2019-08-12T21:37:00.000Z"></input>
+		<button id="scannow">Scan at time</button>		
+		<button id="setscannowtime">Set now</button>		
+		<span style="float: right;">
+		<span id="coords" style="display:none;">
+		Lat: <input size="10" type="text" id="latitude" value="56.2087"></input>
+		Lon: <input size="10" type="text" id="longitude" value="-3.0044"></input>
+		Height: <input size="8" type="text" id="height" value="0.046"></input>
+		</span>		
+		<button id="showcoords">Show Coords</button>
+		<button id="playaos">AOS</button>
+		<button id="playlos">LOS</button>
+		</span>
+		</td>
+	</tr>
+	</table>
+
+<div id="maintable_div">
+<table id='maintable' width='100%'><tr></tr></table>
+</div>
+
+
+</body>
+</html>
